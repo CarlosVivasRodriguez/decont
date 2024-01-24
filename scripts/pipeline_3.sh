@@ -1,7 +1,9 @@
 # Descargar todos los archivos especificados en data/urls
-while read -r url; do
+for url in $(<data/urls)
+do
     bash scripts/download.sh "$url" data
-done < data/urls
+done
+
 
 # Descargar el archivo fasta de contaminantes, descomprimirlo y
 # filtrar para eliminar todos los ARN nucleares pequeños
