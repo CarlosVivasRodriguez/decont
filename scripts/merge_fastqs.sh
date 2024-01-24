@@ -10,4 +10,4 @@ sample_id=$3
 
 mkdir -p $output_directory
 
-cat $samples_directory/${sample_id}-12.5dpp.1.1s_sRNA.fastq.gz $samples_directory/${sample_id}-12.5dpp.1.2s_sRNA.fastq.gz > $output_directory/${sample_id}.fastq.gz
+cat $samples_directory/${sample_id}*.fastq.gz > $output_directory/${sample_id}.fastq.gz
