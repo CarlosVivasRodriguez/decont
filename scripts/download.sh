@@ -13,7 +13,7 @@ wget -P ~/decont/${destination_directory} $url
 if [ "$uncompress" = "yes" ]
 then
     wget -P ~/decont/${destination_directory} https://bioinformatics.cnio.es/data/courses/decont/contaminants.fasta.gz | gunzip ~/decont/${destination_directory}/contaminants.fasta.gz
-    awk '/small nuclear RNA/ {flag=1; next} /^>/ {flag=0} !flag' ~/decont/${destination_directory}/contaminants.fasta > ~/decont/${destination_directory}/filtered_contaminants.fasta
+    awk '/small nuclear RNA/ {flag=1; next} /^>/ {flag=0} !flag' ~/decont/${destination_directory}/contaminants.fasta > ~/decont/${destination_directory}/contaminants.fasta
 fi
 
 
