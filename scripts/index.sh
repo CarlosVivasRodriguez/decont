@@ -13,8 +13,8 @@ if [ "$#" -ne 2 ]; then
 fi
 
 # Assign the input arguments to variables
-genome_file=$1 
-output_directory=$2 
+genome_file=$1
+output_directory=$2
 
 # Create the output directory if it doesn't exist
 mkdir -p "$output_directory"

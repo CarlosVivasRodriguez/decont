@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Descargar todos los archivos especificados en data/urls
 for url in $(<data/urls)
 do
@@ -15,10 +17,15 @@ bash scripts/download.sh "$contaminants_url" res yes
 bash scripts/index.sh res/contaminants.fasta res/contaminants_idx
 
 # Fusionar todas las muestras en un solo archivo
-for fastq_file in data/*.fastq.gz; do
-    sid=$(basename "$fastq_file" .fastq.gz)
-    bash scripts/merge_fastqs.sh data out/merged "$sid"
+for filepath in data/*fastq.gz; do
+    # Obtén el nombre del archivo sin la ruta ni la extensión
+    filename=$(basename "$filepath")
+    sample_id="${filename%%.*}"
+
+    # Ejecuta el script de fusión
+    bash scripts/merge_fastqs.sh data out/merged "$sample_id"
 done
+
 
 # Ejecutar cutadapt para todos los archivos fusionados
 log_file="log/pipeline.log"
