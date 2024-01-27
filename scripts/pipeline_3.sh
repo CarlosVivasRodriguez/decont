@@ -1,44 +1,42 @@
 #!/bin/bash
 
-# Descargar todos los archivos especificados en data/urls
-for url in $(<data/urls)
+# Download all the files specified in data/filenames
+for url in $(<data/urls) #TODO
 do
     bash scripts/download.sh "$url" data
 done
 
 
-# Descargar el archivo fasta de contaminantes, descomprimirlo y
-# filtrar para eliminar todos los ARN nucleares pequeños
+# Download the contaminants fasta file, uncompress it, and
+# filter to remove all small nuclear RNAs
 contaminants_url="https://bioinformatics.cnio.es/data/courses/decont/contaminants.fasta.gz"
-bash scripts/download.sh "$contaminants_url" res yes
-# TODO: Agregar código para filtrar ARN nucleares pequeños si es necesario
+bash scripts/download.sh "$contaminants_url" res yes #TODO
 
-# Indexar el archivo de contaminantes
+# Index the contaminants file
 bash scripts/index.sh res/contaminants.fasta res/contaminants_idx
 
-# Fusionar todas las muestras en un solo archivo
+# Merge the samples into a single file
 for filepath in data/*fastq.gz; do
-    # Obtén el nombre del archivo sin la ruta ni la extensión
-    filename=$(basename "$filepath")
-    sample_id="${filename%%.*}"
-
-    # Ejecuta el script de fusión
-    bash scripts/merge_fastqs.sh data out/merged "$sample_id"
+	# Obtén el nombre del archivo sin la ruta ni la extensión
+	filename=$(basename "$filepath")
+	# Utiliza sed para realizar la transformación del nombre del archivo
+	sample_id=$(echo "$filename" | sed -E 's/-12\.5dpp\.1\.[12]s_sRNA.*//;s/\..*//')
+	# Ejecuta el script de fusión
+	bash scripts/merge_fastqs.sh data out/merged "$sample_id"
 done
 
-
 # Ejecutar cutadapt para todos los archivos fusionados
-log_file="log/pipeline.log"
-mkdir -p out/trimmed
+mkdir -p log/cutadapt  # Crear la carpeta cutadapt dentro de log
 for merged_file in out/merged/*.fastq.gz; do
     trimmed_file="out/trimmed/$(basename "$merged_file" .fastq.gz).trimmed.fastq.gz"
     cutadapt -m 18 -a TGGAATTCTCGGGTGCCAAGG --discard-untrimmed \
-        -o "$trimmed_file" "$merged_file" > temp_cutadapt.log
+        -o "$trimmed_file" "$merged_file" > "log/cutadapt/$(basename "$merged_file" .fastq.gz).log"
 
-    # Añadir información relevante al archivo de registro
+    # Añadir información relevante al archivo de registro principal
     echo "Cutadapt results for $(basename "$merged_file"):" >> "$log_file"
-    grep -E 'Reads with adapters|Total basepairs' temp_cutadapt.log >> "$log_file"
+    grep -E 'Reads with adapters|Total basepairs' "log/cutadapt/$(basename "$merged_file" .fastq.gz).log" >> "$log_file"
 done
+
 
 # Ejecutar STAR para todos los archivos recortados
 mkdir -p out/star
